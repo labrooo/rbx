@@ -1,5 +1,4 @@
 print("AAAAssssssssssss")
-local UI = dofile("./UI.lua")
-print("AAAA")
+local UI = require("./UI.lua")
 UI:create()
 
