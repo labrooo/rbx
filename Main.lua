@@ -1,6 +1,2 @@
--- SpeedKeybind.lua
-local player = game.Players.LocalPlayer
+local UI = dofile("./UI.lua")
 
-local character = player.Character
-local humanoid = character:FindFirstChild("Humanoid")
-humanoid.Health = 0
