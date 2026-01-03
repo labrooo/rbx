@@ -1,82 +1,220 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-local Window = Rayfield:CreateWindow({
-   Name = "Rayfield Example Window",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "Rayfield Interface Suite",
-   LoadingSubtitle = "by Sirius",
-   ShowText = "Rayfield", -- for mobile users to unhide rayfield, change if you'd like
-   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+local UserInputService = game:GetService("UserInputService")
 
-   ToggleUIKeybind = "K", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
 
-   DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
 
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
-      FileName = "Big Hub"
-   },
+local speedActive = false
+local isFlying = true
 
-   Discord = {
-      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
-   },
+local FLY_SPEED = settings.Movement.FlyConfig.speed
+local bodyVelocity
+local bodyGyro
+local flyConnection
 
-   KeySystem = false, -- Set this to true to use our key system
-   KeySettings = {
-      Title = "Untitled",
-      Subtitle = "Key System",
-      Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
-      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
-   }
-})
+if settings.Movement.SpeedConfig.toggle then
+	UserInputService.InputBegan:Connect(function (input, gpe)
+		if gpe then return end
+		
+		if input.KeyCode == settings.Movement.SpeedConfig.keybind then
+			
+			
+			
+			if settings.Movement.SpeedConfig.runOn == "hold" then
+				
+				speedActive = true
+				player.Character.Humanoid.WalkSpeed = settings.Movement.SpeedConfig.speed
+				print("Huh")
+				UserInputService.InputEnded:connect(function (input, gpe) 
+					if gpe then return end
+					
+					if input.KeyCode == settings.Movement.SpeedConfig.keybind then
+						speedActive = false
+						player.Character.Humanoid.WalkSpeed =16
+					end
+					
+				end)
+			end
+			
+			if settings.Movement.SpeedConfig.runOn == "toggle" then
+				if speedActive == true  then
+					-- THis meeans the hack was active before, now we should deactive itt!
+					speedActive = false
+					player.Character.Humanoid.WalkSpeed =16
+				else
+					-- THis means the hack was inactive before, now we should active it!
+					speedActive = true
+					player.Character.Humanoid.WalkSpeed = settings.Movement.SpeedConfig.speed
+				end
+			end
+			
+			
+		end
+	end)
+	
+end
 
-local Tab = Window:CreateTab("Movement", "rewind")
-local Section = Tab:CreateSection("Speed Configuration")
-local Toggle = Tab:CreateToggle({
-   Name = "Toggle Speed",
-   CurrentValue = false,
-   Flag = "ToggleSpeedFlag", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-   -- The function that takes place when the toggle is pressed
-   -- The variable (Value) is a boolean on whether the toggle is true or false
-   end,
-})
-local Dropdown = Tab:CreateDropdown({
-   Name = "Execute on",
-   Options = {"Hold","Press"},
-   CurrentOption = {"Hold"},
-   MultipleOptions = false,
-   Flag = "Dropdown1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Options)
-   -- The function that takes place when the selected option is changed
-   -- The variable (Options) is a table of strings for the current selected options
-   end,
-})
-local Keybind = Tab:CreateKeybind({
-   Name = "Keybind",
-   CurrentKeybind = "Q",
-   HoldToInteract = false,
-   Flag = "Keybind1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Keybind)
-   -- The function that takes place when the keybind is pressed
-   -- The variable (Keybind) is a boolean for whether the keybind is being held or not (HoldToInteract needs to be true)
-   end,
-})
-local Slider = Tab:CreateSlider({
-   Name = "Speed",
-   Range = {0, 1000},
-   Increment = 1,
-   Suffix = "",
-   CurrentValue = 16,
-   Flag = "SpeedValueSlider", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-   -- The function that takes place when the slider changes
-   -- The variable (Value) is a number which correlates to the value the slider is currently at
-   end,
-})
+if settings.Movement.FlyConfig.toggle then
+	-- Toggle flying with F key
+	UserInputService.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed then return end
+
+		if input.KeyCode == settings.Movement.FlyConfig.keybind then
+			
+			if settings.Movement.FlyConfig.runOn == "hold" then
+				isFlying = true
+				startFlying()
+				
+				UserInputService.InputEnded:connect(function (input, gpe) 
+					if gpe then return end
+
+					if input.KeyCode == settings.Movement.FlyConfig.keybind then
+						isFlying = false
+						stopFlying()
+					end
+
+				end)
+			end
+			
+			if settings.Movement.FlyConfig.runOn == "toggle" then
+				toggleFlying()
+			end
+			
+
+		end
+	end)
+
+	function toggleFlying()
+		isFlying = not isFlying
+		print("Toggling flying:", isFlying)  -- Debug
+
+		if isFlying then
+			startFlying()
+		else
+			stopFlying()
+		end
+	end
+
+	function startFlying()
+	
+
+		-- Enable flying state
+		humanoid.PlatformStand = true
+
+		-- Create BodyVelocity for movement
+		bodyVelocity = Instance.new("BodyVelocity")
+		bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+		bodyVelocity.MaxForce = Vector3.new(40000, 40000, 40000)
+		bodyVelocity.P = 1000
+		bodyVelocity.Parent = character.HumanoidRootPart
+
+		-- Create BodyGyro for rotation
+		bodyGyro = Instance.new("BodyGyro")
+		bodyGyro.MaxTorque = Vector3.new(50000, 50000, 50000)
+		bodyGyro.P = 3000
+		bodyGyro.D = 500
+		bodyGyro.Parent = character.HumanoidRootPart
+
+		-- Movement update connection
+		flyConnection = RunService.RenderStepped:Connect(function(deltaTime)
+			if not isFlying or not character:IsDescendantOf(workspace) then
+				if flyConnection then
+					flyConnection:Disconnect()
+					flyConnection = nil
+				end
+				return
+			end
+
+			local direction = Vector3.new(0, 0, 0)
+			local rootPart = character:FindFirstChild("HumanoidRootPart")
+
+			if not rootPart then return end
+
+			-- Get movement input
+			-- Forward/Backward
+			if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+				direction = direction + rootPart.CFrame.LookVector
+			end
+			if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+				direction = direction - rootPart.CFrame.LookVector
+			end
+
+			-- Left/Right
+			if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+				direction = direction - rootPart.CFrame.RightVector
+			end
+			if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+				direction = direction + rootPart.CFrame.RightVector
+			end
+
+			-- Up/Down
+			if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+				direction = direction + Vector3.new(0, 1, 0)
+			end
+			if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+				direction = direction + Vector3.new(0, -1, 0)
+			end
+
+			-- ✅ SAFE: Apply speed with nil check
+			if direction.Magnitude > 0 then
+				-- Debug: Check FLY_SPEED value
+				if FLY_SPEED == nil then
+					warn("FLY_SPEED is nil! Defaulting to 50")
+					FLY_SPEED = 50
+				end
+
+				-- Normalize and apply speed
+				direction = direction.Unit * FLY_SPEED  -- This should work now
+			end
+
+			-- Apply velocity
+			if bodyVelocity then
+				bodyVelocity.Velocity = direction
+			end
+
+			-- Update rotation to follow camera
+			if bodyGyro then
+				local camera = workspace.CurrentCamera
+				if camera then
+					bodyGyro.CFrame = CFrame.new(rootPart.Position, 
+						rootPart.Position + camera.CFrame.LookVector)
+				end
+			end
+		end)
+	end
+
+	function stopFlying()
+		print("Stopping flight")  -- Debug
+		humanoid.PlatformStand = false
+
+		-- Clean up physics objects
+		if bodyVelocity then
+			bodyVelocity:Destroy()
+			bodyVelocity = nil
+		end
+
+		if bodyGyro then
+			bodyGyro:Destroy()
+			bodyGyro = nil
+		end
+
+		-- Clean up connection
+		if flyConnection then
+			flyConnection:Disconnect()
+			flyConnection = nil
+		end
+	end
+
+	-- Clean up when character dies
+	character.Destroying:Connect(function()
+		stopFlying()
+	end)
+
+	-- Handle character respawns
+	player.CharacterAdded:Connect(function(newCharacter)
+		character = newCharacter
+		humanoid = newCharacter:WaitForChild("Humanoid")
+		stopFlying()  -- Reset flight on new character
+	end)
+
+end
