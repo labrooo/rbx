@@ -61,7 +61,7 @@ local function create()
    })
    local Keybind = Tab:CreateKeybind({
       Name = "Keybind",
-      CurrentKeybind = "Q",
+      CurrentKeybind = "LeftControl",
       HoldToInteract = false,
       Flag = "Keybind1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
       Callback = function(Keybind)
