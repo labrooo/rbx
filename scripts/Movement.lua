@@ -1,3 +1,9 @@
+local settings = require(script.Parent.Config)
+local players = game:GetService("Players")
+local player = players.LocalPlayer
+local mouse = player:getMouse()
+local RunService = game:GetService("RunService")
+
 local UserInputService = game:GetService("UserInputService")
 
 local character = player.Character or player.CharacterAdded:Wait()
