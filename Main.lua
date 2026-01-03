@@ -1,4 +1,5 @@
 print("AAAAssssssssssss")
 local UI = require("./UI.lua")
-UI:create()
+print("past imp")
+UI.create()
 
