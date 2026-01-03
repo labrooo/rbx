@@ -5,11 +5,11 @@ module.Movement = {
 		toggle = true,
 		runOn = "hold",
 		keybind =Enum.KeyCode.LeftControl,
-		speed = 100
+		speed = 55
 	},
 	
 	FlyConfig = {
-		toggle = true,
+		toggle = false,
 		runOn = "hold",
 		keybind =Enum.KeyCode.Q,
 		speed = 100
