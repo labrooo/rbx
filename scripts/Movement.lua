@@ -1,4 +1,5 @@
-local settings = require(script.Parent.Config)
+local settings = loadstring(game:HttpGet('https://raw.githubusercontent.com/labrooo/rbx/refs/heads/main/Settings.lua'))()
+
 local players = game:GetService("Players")
 local player = players.LocalPlayer
 local mouse = player:getMouse()
