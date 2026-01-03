@@ -19,47 +19,34 @@ local bodyVelocity
 local bodyGyro
 local flyConnection
 
-if settings.Movement.SpeedConfig.toggle then
-	UserInputService.InputBegan:Connect(function (input, gpe)
-		if gpe then return end
-		
-		if input.KeyCode == settings.Movement.SpeedConfig.keybind then
+local Movementhacks = {}
+local function SpeedHack(keyState)
+	if settings.Movement.SpeedConfig.toggle then
+		if settings.Movement.SpeedConfig.runOn == "hold" then
 			
-			
-			
-			if settings.Movement.SpeedConfig.runOn == "hold" then
-				
-				speedActive = true
+			if keyState then
 				player.Character.Humanoid.WalkSpeed = settings.Movement.SpeedConfig.speed
-				print("Huh")
-				UserInputService.InputEnded:connect(function (input, gpe) 
-					if gpe then return end
-					
-					if input.KeyCode == settings.Movement.SpeedConfig.keybind then
-						speedActive = false
-						player.Character.Humanoid.WalkSpeed =16
-					end
-					
-				end)
 			end
-			
-			if settings.Movement.SpeedConfig.runOn == "toggle" then
-				if speedActive == true  then
-					-- THis meeans the hack was active before, now we should deactive itt!
-					speedActive = false
-					player.Character.Humanoid.WalkSpeed =16
-				else
-					-- THis means the hack was inactive before, now we should active it!
-					speedActive = true
-					player.Character.Humanoid.WalkSpeed = settings.Movement.SpeedConfig.speed
-				end
+
+			if not keyState then
+				player.Character.Humanoid.WalkSpeed =16
 			end
-			
-			
 		end
-	end)
-	
+
+		if settings.Movement.SpeedConfig.runOn == "toggle" then
+			
+			if speedActive == true and keyState then
+				speedActive = false
+				player.Character.Humanoid.WalkSpeed = 16
+			end
+			
+			if speedActive == false and keyState then
+				player.Character.Humanoid.WalkSpeed = settings.Movement.SpeedConfig.speed
+			end
+		end
+	end
 end
+
 
 if settings.Movement.FlyConfig.toggle then
 	-- Toggle flying with F key
@@ -225,3 +212,6 @@ if settings.Movement.FlyConfig.toggle then
 	end)
 
 end
+
+Movementhacks.SpeedHack = SpeedHack
+return Movementhacks
