@@ -1,4 +1,4 @@
-local settings = loadstring(game:HttpGet('https://raw.githubusercontent.com/labrooo/rbx/refs/heads/main/Settings.lua'))()
+
 
 local players = game:GetService("Players")
 local player = players.LocalPlayer
@@ -14,13 +14,13 @@ local humanoid = character:WaitForChild("Humanoid")
 local speedActive = false
 local isFlying = true
 
-local FLY_SPEED = settings.Movement.FlyConfig.speed
+--local FLY_SPEED = settings.Movement.FlyConfig.speed
 local bodyVelocity
 local bodyGyro
 local flyConnection
 
 local Movementhacks = {}
-local function SpeedHack(keyState)
+local function SpeedHack(keyState, settings)
 	if settings.Movement.SpeedConfig.toggle then
 		if settings.Movement.SpeedConfig.runOn == "hold" then
 			
