@@ -1,3 +1,7 @@
+local MovementScripts = loadstring(game:HttpGet('https://raw.githubusercontent.com/labrooo/rbx/refs/heads/main/scripts/Movement.lua'))()
+local settings = loadstring(game:HttpGet('https://raw.githubusercontent.com/labrooo/rbx/refs/heads/main/Settings.lua'))()
+
+
 local function create()
    local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
    local Window = Rayfield:CreateWindow({
@@ -44,8 +48,7 @@ local function create()
       CurrentValue = false,
       Flag = "ToggleSpeedFlag", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
       Callback = function(Value)
-      -- The function that takes place when the toggle is pressed
-      -- The variable (Value) is a boolean on whether the toggle is true or false
+		   settings.Movement.SpeedConfig.toggle = Value
       end,
    })
    local Dropdown = Tab:CreateDropdown({
@@ -55,18 +58,16 @@ local function create()
       MultipleOptions = false,
       Flag = "Dropdown1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
       Callback = function(Options)
-      -- The function that takes place when the selected option is changed
-      -- The variable (Options) is a table of strings for the current selected options
+         settings.Movement.SpeedConfig.runOn = Options[1]
       end,
    })
    local Keybind = Tab:CreateKeybind({
       Name = "Keybind",
       CurrentKeybind = "LeftControl",
-      HoldToInteract = false,
+      HoldToInteract = true,
       Flag = "Keybind1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
       Callback = function(Keybind)
-      -- The function that takes place when the keybind is pressed
-      -- The variable (Keybind) is a boolean for whether the keybind is being held or not (HoldToInteract needs to be true)
+          MovementScripts.SpeedHack(Keybind)
       end,
    })
    local Slider = Tab:CreateSlider({
@@ -77,8 +78,10 @@ local function create()
       CurrentValue = 16,
       Flag = "SpeedValueSlider", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
       Callback = function(Value)
-      -- The function that takes place when the slider changes
-      -- The variable (Value) is a number which correlates to the value the slider is currently at
+          settings.Movement.SpeedConfig.speed = Value
       end,
    })
 end
+
+
+
